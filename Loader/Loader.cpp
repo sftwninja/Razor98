@@ -95,8 +95,28 @@ extern "C" __declspec(dllexport) DWORD __stdcall Load( const char *exe, const ch
 
 	// allocate some space in the exe for our memory
 	DWORD ProcMem = 0;
+	bool sharedView = false;
 	
 	ProcMem = (DWORD)VirtualAllocEx( ProcInfo.hProcess, NULL, allocSize, MEM_COMMIT|MEM_RESERVE, PAGE_EXECUTE_READWRITE );
+	if ( !ProcMem && (GetVersion() & 0x80000000) )
+	{
+		// 9x: no VirtualAllocEx. Shared mapping views sit above 0x80000000 at the
+		// same address in every process, so the client can use ours. Never closed.
+		HANDLE hMap = CreateFileMapping( INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, (DWORD)allocSize, NULL );
+		if ( hMap )
+		{
+			ProcMem = (DWORD)MapViewOfFile( hMap, FILE_MAP_WRITE, 0, 0, allocSize );
+			if ( ProcMem >= 0x80000000 )
+				sharedView = true;
+			else if ( ProcMem )
+			{
+				UnmapViewOfFile( (LPCVOID)ProcMem );
+				ProcMem = 0;
+			}
+			if ( !sharedView )
+				CloseHandle( hMap );
+		}
+	}
 	if ( !ProcMem )
 	{
 		ProcMem = 0x00700000;
@@ -195,7 +215,11 @@ extern "C" __declspec(dllexport) DWORD __stdcall Load( const char *exe, const ch
 	if ( dataLen > 0 )
 		memcpy( &toWrite[LoadAsmSize+dllNameLen+funcNameLen], dllData, dataLen );
 
-	if ( !WriteProcessMemory( ProcInfo.hProcess, (void*)ProcMem, toWrite, allocSize, &Num ) || Num != allocSize )
+	if ( sharedView )
+	{
+		memcpy( (void*)ProcMem, toWrite, allocSize );
+	}
+	else if ( !WriteProcessMemory( ProcInfo.hProcess, (void*)ProcMem, toWrite, allocSize, &Num ) || Num != allocSize )
 	{
 		TerminateProcess( ProcInfo.hProcess, 0 );
 		return NO_WRITE;

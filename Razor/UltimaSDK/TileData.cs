@@ -804,8 +804,21 @@ namespace Ultima
         public unsafe static string ReadNameString(byte* buffer)
         {
             int count;
+            bool ascii = true;
             for (count = 0; count < 20 && *buffer != 0; ++count)
+            {
+                ascii &= *buffer < 0x80;
                 m_StringBuffer[count] = *buffer++;
+            }
+
+            if (ascii)
+            {
+                // fast path, Encoding.Default is slow over ~30k names
+                char* chars = stackalloc char[20];
+                for (int i = 0; i < count; ++i)
+                    chars[i] = (char) m_StringBuffer[i];
+                return new string(chars, 0, count);
+            }
 
             return Encoding.Default.GetString(m_StringBuffer, 0, count);
         }
@@ -845,7 +858,7 @@ namespace Ultima
                         {
                             IntPtr ptrheader = new IntPtr((long) gc.AddrOfPinnedObject() + currpos);
                             currpos += 4;
-                            landheader[j++] = (int) Marshal.PtrToStructure(ptrheader, typeof(int));
+                            landheader[j++] = *(int*) ptrheader.ToPointer();
                             for (int count = 0; count < 32; ++count)
                             {
                                 IntPtr ptr = new IntPtr((long) gc.AddrOfPinnedObject() + currpos);
@@ -853,14 +866,14 @@ namespace Ultima
                                 {
                                     currpos += sizeof(NewLandTileDataMul);
                                     NewLandTileDataMul cur =
-                                        (NewLandTileDataMul) Marshal.PtrToStructure(ptr, typeof(NewLandTileDataMul));
+                                        *(NewLandTileDataMul*) ptr.ToPointer();
                                     m_LandData[i + count] = new LandData(cur);
                                 }
                                 else
                                 {
                                     currpos += sizeof(OldLandTileDataMul);
                                     OldLandTileDataMul cur =
-                                        (OldLandTileDataMul) Marshal.PtrToStructure(ptr, typeof(OldLandTileDataMul));
+                                        *(OldLandTileDataMul*) ptr.ToPointer();
                                     m_LandData[i + count] = new LandData(cur);
                                 }
                             }
@@ -879,7 +892,7 @@ namespace Ultima
                         {
                             IntPtr ptrheader = new IntPtr((long) gc.AddrOfPinnedObject() + currpos);
                             currpos += 4;
-                            itemheader[j++] = (int) Marshal.PtrToStructure(ptrheader, typeof(int));
+                            itemheader[j++] = *(int*) ptrheader.ToPointer();
                             for (int count = 0; count < 32; ++count)
                             {
                                 IntPtr ptr = new IntPtr((long) gc.AddrOfPinnedObject() + currpos);
@@ -887,7 +900,7 @@ namespace Ultima
                                 {
                                     currpos += sizeof(NewItemTileDataMul);
                                     NewItemTileDataMul cur =
-                                        (NewItemTileDataMul) Marshal.PtrToStructure(ptr, typeof(NewItemTileDataMul));
+                                        *(NewItemTileDataMul*) ptr.ToPointer();
                                     m_ItemData[i + count] = new ItemData(cur);
                                     m_HeightTable[i + count] = cur.height;
                                 }
@@ -895,7 +908,7 @@ namespace Ultima
                                 {
                                     currpos += sizeof(OldItemTileDataMul);
                                     OldItemTileDataMul cur =
-                                        (OldItemTileDataMul) Marshal.PtrToStructure(ptr, typeof(OldItemTileDataMul));
+                                        *(OldItemTileDataMul*) ptr.ToPointer();
                                     m_ItemData[i + count] = new ItemData(cur);
                                     m_HeightTable[i + count] = cur.height;
                                 }

@@ -126,6 +126,14 @@ namespace Assistant
 
         public void AddMultiple(ICollection col)
         {
+#if WIN98
+            // cheaper than re-heapifying everything every tick
+            if (col != null)
+            {
+                foreach (IComparable o in col)
+                    Add(o);
+            }
+#else
             if (col != null && col.Count > 0)
             {
                 foreach (object o in col)
@@ -141,6 +149,7 @@ namespace Assistant
 
                 Heapify();
             }
+#endif
         }
 
         public int Count
@@ -219,11 +228,26 @@ namespace Assistant
 
         public int CompareTo(object obj)
         {
+#if WIN98
+            // same order as TimeUntilTick without reading the clock (slow on 98)
+            Timer other = obj as Timer;
+            if (other == null)
+                return -1;
+            return this.SortKey.CompareTo(other.SortKey);
+#else
             if (obj is Timer)
                 return this.TimeUntilTick.CompareTo(((Timer) obj).TimeUntilTick);
             else
                 return -1;
+#endif
         }
+
+#if WIN98
+        private long SortKey
+        {
+            get { return m_Running ? m_Next.Ticks : long.MaxValue; }
+        }
+#endif
 
         public TimeSpan TimeUntilTick
         {
@@ -273,6 +297,11 @@ namespace Assistant
 
         public static void Slice()
         {
+#if WIN98
+            // runs 40x/sec, usually nothing is due
+            if (m_Heap.IsEmpty || ((Timer) m_Heap.Peek()).TimeUntilTick >= TimeSpan.Zero)
+                return;
+#endif
             int breakCount = 100;
             ArrayList readd = new ArrayList();
 

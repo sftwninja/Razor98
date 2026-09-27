@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- pokes at Process on 98 -->
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net20</TargetFramework><PlatformTarget>x86</PlatformTarget>
+    <EnableDefaultItems>false</EnableDefaultItems><AllowUnsafeBlocks>false</AllowUnsafeBlocks></PropertyGroup>
+  <ItemGroup><Compile Include="Program.cs" /></ItemGroup>
+</Project>

@@ -353,7 +353,11 @@ namespace Ultima
                 {
                     string exePath;
 
+#if NET20
+                    if (Net20.Is64BitOperatingSystem)
+#else
                     if (Environment.Is64BitOperatingSystem)
+#endif
                         exePath = GetPath($@"Wow6432Node\{knownRegkeys[i]}");
                     else
                         exePath = GetPath(knownRegkeys[i]);

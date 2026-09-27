@@ -144,7 +144,13 @@ namespace Ultima
             for (var i = 0; i < 256; i++)
                 symbolTable[i] = (char) i;
 
+#if NET20
+            // The NET20 span shim can't alias an int[] as bytes, so decode directly.
+            for (var i = 0; i < 256; i++)
+                partialInput[i] = input[i * 4] | (input[i * 4 + 1] << 8) | (input[i * 4 + 2] << 16) | (input[i * 4 + 3] << 24);
+#else
             input.Slice(0, 1024).CopyTo(MemoryMarshal.AsBytes(partialInput));
+#endif
 
             var sum = 0;
             for (var i = 0; i < 256; i++)
@@ -156,7 +162,7 @@ namespace Ultima
             }
 
             if (sum != len)
-                return Array.Empty<byte>();
+                return new byte[0];
 
             var output = new byte[len];
 

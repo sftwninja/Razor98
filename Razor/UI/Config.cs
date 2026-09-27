@@ -760,7 +760,7 @@ namespace Assistant
                 }
                 else
                 {
-                    foreach (var line in File.ReadLines(path))
+                    foreach (var line in File.ReadAllLines(path))
                     {
                         var strs = line.Split(',');
 
@@ -916,7 +916,11 @@ namespace Assistant
             string name = LastProfileName;
             Profile p;
 
+#if NET20
+            if (!Net20.IsNullOrWhiteSpace(name))
+#else
             if (!string.IsNullOrWhiteSpace(name))
+#endif
             {
                 p = new Profile(name);
                 if (p.Load())
@@ -1007,7 +1011,11 @@ namespace Assistant
             {
                 var appSetting = m_AppSettings[key];
 
+#if NET20
+                if (!Net20.IsNullOrWhiteSpace(appSetting))
+#else
                 if (!string.IsNullOrWhiteSpace(appSetting))
+#endif
                 {
                     var converter = TypeDescriptor.GetConverter(typeof(T));
                     return (T) (converter.ConvertFromInvariantString(appSetting));

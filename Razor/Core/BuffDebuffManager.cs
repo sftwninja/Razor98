@@ -501,7 +501,11 @@ namespace Assistant.Core
         {
             try
             {
+#if NET20
+                if (Net20.EnumTryParse(name, true, out BuffIconType result))
+#else
                 if (Enum.TryParse(name, true, out BuffIconType result))
+#endif
                 {
                     ushort iconId = (ushort) result >= BUFF_ICON_START_NEW
                         ? (ushort) (result - (BUFF_ICON_START_NEW - 125))

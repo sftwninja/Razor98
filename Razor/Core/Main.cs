@@ -235,7 +235,12 @@ namespace Assistant
                 if (_previousHour != DateTime.UtcNow.Hour)
                 {
                     _previousHour = DateTime.UtcNow.Hour;
+#if NET20
+                    // no DateTimeOffset before 2.0 SP1
+                    _Differential = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).Hours;
+#else
                     _Differential = DateTimeOffset.Now.Offset.Hours;
+#endif
                 }
 
                 return _Differential;
@@ -334,6 +339,9 @@ namespace Assistant
 
             Client.Instance.SetConnectionInfo(ip, port);
 
+#if WIN98
+            Win98Preload.Start();
+#endif
             SplashScreen.Message = LocString.WaitingForClient;
         }
 

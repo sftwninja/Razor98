@@ -78,7 +78,11 @@ namespace Assistant.Core
 
                             if (m.Female)
                             {
+#if NET20
+                                if (Net20.EnumTryParse(text, true, out FemaleSounds sound))
+#else
                                 if (Enum.TryParse(text, true, out FemaleSounds sound))
+#endif
                                 {
                                     if (sound != 0)
                                     {
@@ -88,7 +92,11 @@ namespace Assistant.Core
                             }
                             else
                             {
+#if NET20
+                                if (Net20.EnumTryParse(text, true, out MaleSounds sound))
+#else
                                 if (Enum.TryParse(text, true, out MaleSounds sound))
+#endif
                                 {
                                     if (sound != 0)
                                     {

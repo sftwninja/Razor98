@@ -1,3 +1,10 @@
+## (This is a fork)
+This is a port of Razor to Windows 98SE so I could run it on a Pentium 2.
+
+Q: Will this be updated with upstream?
+
+A: Probably not, but development upstream seems slow enough that it's not a huge concern.
+
 # Razor: An Ultima Online Assistant
 
 ![Razor Logo](https://imgur.com/jTtHLVF.png)

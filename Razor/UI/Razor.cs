@@ -564,7 +564,7 @@ namespace Assistant
         {
             int hue = 0;
 
-            var lines = File.ReadLines(Path.Combine(Config.GetInstallDirectory(), "animdata.csv")).Select(a => a.Split(','));
+            var lines = File.ReadAllLines(Path.Combine(Config.GetInstallDirectory(), "animdata.csv")).Select(a => a.Split(','));
 
             _animationData.Clear();
             dragonAnimationList.Items.Clear();

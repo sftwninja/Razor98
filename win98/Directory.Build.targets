@@ -1,0 +1,44 @@
+<Project>
+  <!-- Form .resx need DependentUpon so resource names match the class.
+       The SDK can't figure it out for linked files. -->
+  <Target Name="_Win98ResxDependentUpon" BeforeTargets="CreateManifestResourceNames">
+    <ItemGroup>
+      <EmbeddedResource Condition="'%(Extension)' == '.resx' and '%(EmbeddedResource.DependentUpon)' == '' and Exists('%(RootDir)%(Directory)%(Filename).cs')">
+        <DependentUpon>%(Filename).cs</DependentUpon>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
+
+  <!-- Compile rewritten *.Designer.cs, see tools/net20-designer.py. -->
+  <Target Name="_Win98DesignerRewrite" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <_Win98Designer Include="@(Compile)" Condition="$([System.String]::Copy('%(Filename)').EndsWith('.Designer'))" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_Win98DesignerOut>$(IntermediateOutputPath)net20-designer\</_Win98DesignerOut>
+    </PropertyGroup>
+    <Exec Condition="'@(_Win98Designer)' != ''"
+          Command="python3 &quot;$(Win98Tools)net20-designer.py&quot; &quot;$(Src)&quot; &quot;$(_Win98DesignerOut)&quot; @(_Win98Designer->'&quot;%(Link)&quot;', ' ')" />
+    <ItemGroup>
+      <Compile Remove="@(_Win98Designer)" />
+      <Compile Include="@(_Win98Designer->'$(_Win98DesignerOut)%(Link)')" />
+    </ItemGroup>
+  </Target>
+
+  <!-- No ResGen for net20 on Core MSBuild, use resx2resources.py. -->
+  <Target Name="CoreResGen" DependsOnTargets="$(CoreResGenDependsOn)">
+    <ItemGroup>
+      <_Win98Resx Include="@(EmbeddedResource)"
+                  Condition="'%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.WithCulture)' == 'false' and '%(EmbeddedResource.GenerateResource)' != 'false'">
+        <OutputResource>$(IntermediateOutputPath)%(ManifestResourceName).resources</OutputResource>
+      </_Win98Resx>
+      <EmbeddedResource Remove="@(_Win98Resx)" />
+      <EmbeddedResource Include="@(_Win98Resx)" />
+    </ItemGroup>
+    <Exec Condition="'@(_Win98Resx)' != ''"
+          Command="python3 &quot;$(Win98Tools)resx2resources.py&quot; @(_Win98Resx->'&quot;%(FullPath)=%(OutputResource)&quot;', ' ')" />
+    <ItemGroup>
+      <FileWrites Include="@(_Win98Resx->'%(OutputResource)')" />
+    </ItemGroup>
+  </Target>
+</Project>

@@ -166,7 +166,11 @@ namespace Assistant
             {
                 try
                 {
+#if WIN98
+                    return ClientProcessWatch.IsRunning(ClientProc);
+#else
                     return ClientProc != null && !ClientProc.HasExited;
+#endif
                 }
                 catch
                 {

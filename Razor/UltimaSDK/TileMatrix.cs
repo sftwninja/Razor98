@@ -354,7 +354,7 @@ namespace Ultima
                         for (int i = 0; i < count; ++i)
                         {
                             IntPtr ptr = new IntPtr((long) gc.AddrOfPinnedObject() + i * sizeof(StaticTile));
-                            StaticTile cur = (StaticTile) Marshal.PtrToStructure(ptr, typeof(StaticTile));
+                            StaticTile cur = *(StaticTile*) ptr.ToPointer();
                             lists[cur.m_X & 0x7][cur.m_Y & 0x7].Add(Art.GetLegalItemID(cur.m_ID), cur.m_Hue, cur.m_Z);
                         }
 

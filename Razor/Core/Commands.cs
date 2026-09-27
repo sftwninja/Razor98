@@ -138,7 +138,7 @@ namespace Assistant
 
                 for (var i = 0; i < (float)props.Length / 40; i++)
                 {
-                    World.Player.SendMessage(MsgLevel.Info, string.Join(", ", props.Skip(i * 40).Take(40)));
+                    World.Player.SendMessage(MsgLevel.Info, string.Join(", ", props.Skip(i * 40).Take(40).ToArray()));
                 }
 
                 return;
@@ -269,7 +269,7 @@ namespace Assistant
 
         private static void ShowUsableSkills(string[] param)
         {
-            World.Player.SendMessage(MsgLevel.Info, $"Usable skills: {string.Join(", ", Skills.GetUsableSkillNames())}");
+            World.Player.SendMessage(MsgLevel.Info, $"Usable skills: {string.Join(", ", Skills.GetUsableSkillNames().ToArray())}");
         }
 
         private static void GetSystemMessages(string[] param)

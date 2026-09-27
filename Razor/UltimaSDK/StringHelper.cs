@@ -244,7 +244,11 @@ namespace Ultima
 
         public static string AddSpaceBeforeCapital(string str, bool checkAcronyms = true)
         {
+#if NET20
+            if (Net20.IsNullOrWhiteSpace(str))
+#else
             if (string.IsNullOrWhiteSpace(str))
+#endif
             {
                 return "";
             }
@@ -274,7 +278,11 @@ namespace Ultima
 
         public static string RemoveUpperLowerChars(string str, bool removelower = true)
         {
+#if NET20
+            if (Net20.IsNullOrWhiteSpace(str))
+#else
             if (string.IsNullOrWhiteSpace(str))
+#endif
             {
                 return "";
             }

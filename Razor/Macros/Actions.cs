@@ -1829,7 +1829,7 @@ namespace Assistant.Macros
                 message.Add(args[i]);
             }
 
-            _message = string.Join(" ", message);
+            _message = string.Join(" ", message.ToArray());
         }
 
         public OverheadMessageAction(ushort hue, string message)

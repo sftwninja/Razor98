@@ -1339,12 +1339,12 @@ namespace Assistant.Scripts
                 }
                 else
                 {
-                    CommandHelper.SendWarning(command, $"Skill '{vars[0].AsString()}' is not usable. Available usable skills: {string.Join(", ", Skills.GetUsableSkillNames())}", quiet);
+                    CommandHelper.SendWarning(command, $"Skill '{vars[0].AsString()}' is not usable. Available usable skills: {string.Join(", ", Skills.GetUsableSkillNames().ToArray())}", quiet);
                 }
             }
             else
             {
-                CommandHelper.SendWarning(command, $"Skill '{vars[0].AsString()}' not found. Available usable skills: {string.Join(", ", Skills.GetUsableSkillNames())}", quiet);
+                CommandHelper.SendWarning(command, $"Skill '{vars[0].AsString()}' not found. Available usable skills: {string.Join(", ", Skills.GetUsableSkillNames().ToArray())}", quiet);
             }
 
             if (skillId == Skills.StealthIndex && !World.Player.Visible)
@@ -1569,7 +1569,11 @@ namespace Assistant.Scripts
                 }
                 else // lets find the layer
                 {
+#if NET20
+                    if (Net20.EnumTryParse(vars[0].AsString(), true, out Layer layer))
+#else
                     if (Enum.TryParse(vars[0].AsString(), true, out Layer layer))
+#endif
                     {
                         Dress.Unequip(layer);
                         _undressLayer = true;

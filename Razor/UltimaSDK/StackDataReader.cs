@@ -431,7 +431,7 @@ namespace Ultima
 
             fixed (byte* ptr = slice)
             {
-                result = encoding.GetString(ptr, size);
+                result = new string((sbyte*)ptr, 0, size, encoding);
             }
 
             if (safe)

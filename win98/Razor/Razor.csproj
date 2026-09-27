@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Assistant</RootNamespace>
+    <AssemblyName>Razor</AssemblyName>
+    <StartupObject>Assistant.Engine</StartupObject>
+    <Src>$(MSBuildThisFileDirectory)..\..\Razor\</Src>
+    <!-- -p:RazorSrc=... to build some other copy of the sources -->
+    <Src Condition="'$(RazorSrc)' != ''">$(RazorSrc)</Src>
+    <ApplicationIcon>$(Src)UI\App.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Configuration" />
+    <ProjectReference Include="..\FastColoredTextBox\FastColoredTextBox.csproj" />
+    <Compile Include="$(Src)**\*.cs" Exclude="$(Src)obj\**;$(Src)bin\**;$(Src)Network\Loader.cs" Link="%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Compat\**\*.cs" Link="Compat\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="Shims\**\*.cs" />
+    <EmbeddedResource Include="$(Src)**\*.resx" Exclude="$(Src)obj\**;$(Src)bin\**" Link="%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="$(Src)UI\App.ico" Link="UI\App.ico" LogicalName="Assistant.UI.App.ico" />
+  </ItemGroup>
+  <Target Name="Win98AppConfig" AfterTargets="Build">
+    <Exec Command="python3 &quot;$(Win98Tools)net20-config.py&quot; &quot;$(Src)app.config&quot; &quot;$(OutDir)$(TargetFileName).config&quot;" />
+  </Target>
+</Project>
